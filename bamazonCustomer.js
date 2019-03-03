@@ -1,5 +1,6 @@
 var inquirer = require('inquirer');
 var mysql = require("mysql");
+var itemQuantities = [];
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -20,19 +21,20 @@ var connection = mysql.createConnection({
     connection.query('SELECT * FROM products',function(err,rows){
         if(err) throw err;
       
-        console.log('Data received');
         for (var i = 0; i<rows.length; i++) {
             console.log("________________________");
             console.log();
             console.log("ID: " + rows[i].item_id + " || Product: " + rows[i].product_name + " || Department: " + rows[i].department_name + 
             " || Price: " + rows[i].price + " || Quantity: " + rows[i].stock_quantity);
             console.log();
+            itemQuantities[i] = rows[i].stock_quantity;
+            console.log("itemQuantity: " + itemQuantities[i]);
+
         }
         //console.log(rows);
         start();
       });
     
-    // run the start function after the connection is made to prompt the user
   });
   
   function start() {
@@ -52,21 +54,25 @@ var connection = mysql.createConnection({
       }
   ])
   .then(answers => {
-    
-    var query = "SELECT * FROM products WHERE item_id=?";
-    connection.query(query,answers.ItemId, function(err, results) {
-      if (err) throw err;
-      
-      console.log("The item is: " + JSON.stringify(results[0]));
-      if (results[0].stock_quantity === 0) {
-        console.log("Sorry but we have just run out of that product. You will have to select another");
-      }
-      else {
-        //Subtract Units from results[0].stock_quantity and update the products table in the bamazon database
-      }
-      start();
-    
+      var query = "UPDATE products SET stock_quantity = stock_quantity - '?' WHERE item_id ='?'";
+      var ItemId = answers.ItemId
+      var HowMany = answers.Units;
+      // select * from products;
 
-  });})
-  }
+      // update products set stock_quantity = stock_quantity - 10 where item_id = 1;
+      
+      connection.query(query, HowMany, ItemId, function (err, results) {
+        if (err) throw err;
+        console.log("stock_quantity: " + results[0].stock_quantity);
+        return results;
+      });
+
+
+      console.log("units2: " + connection.units);
+      console.log("connection: " + connection);
+        
+        //Subtract Units from results[0].stock_quantity and update the products table in the bamazon database
+      //}
+}
+)}
   
