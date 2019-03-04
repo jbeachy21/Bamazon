@@ -1,6 +1,7 @@
 var inquirer = require('inquirer');
 var mysql = require("mysql");
 var itemQuantities = [];
+var easyTable = require("easy-table");
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -38,7 +39,6 @@ var connection = mysql.createConnection({
   });
   
   function start() {
-      console.log("Hello");
       inquirer
   .prompt([
     {
@@ -54,25 +54,35 @@ var connection = mysql.createConnection({
       }
   ])
   .then(answers => {
-      var query = "UPDATE products SET stock_quantity = stock_quantity - '?' WHERE item_id ='?'";
+      var query = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id =?";
       var ItemId = answers.ItemId
       var HowMany = answers.Units;
+      itemQuantities[ItemId+1] = itemQuantities[ItemId+1] - HowMany; 
+      var stock = itemQuantities[ItemId]
+      console.log("ItemId: " + ItemId);
+      console.log("HowMany: " + HowMany);
+      console.log("stock: " + stock);
       // select * from products;
 
       // update products set stock_quantity = stock_quantity - 10 where item_id = 1;
       
-      connection.query(query, HowMany, ItemId, function (err, results) {
+      if (HowMany > stock || stock === 0) {
+        console.log("Insufficient quantity (you ordered too many or we are currently out of stock).");
+        start();
+      }
+    //ADD CASE FOR IF SOMEONE WANTS TO BUY MORE UNITS THAN CURRENT QUANTITY OR IF THERE IS A CURRENT QUANTITY OF 0
+
+
+
+      connection.query(query, [HowMany, ItemId], function (err, results) {
         if (err) throw err;
-        console.log("stock_quantity: " + results[0].stock_quantity);
+        console.log(results);
         return results;
       });
 
 
-      console.log("units2: " + connection.units);
-      console.log("connection: " + connection);
+        connection.end();
         
-        //Subtract Units from results[0].stock_quantity and update the products table in the bamazon database
-      //}
 }
 )}
   
