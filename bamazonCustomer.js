@@ -28,7 +28,7 @@ var connection = mysql.createConnection({
         for (var i = 0; i<rows.length; i++) {
             prices[i] = rows[i].price;
             itemQuantities[i] = rows[i].stock_quantity;
-            t.cell("Item id", rows[i].item_id);
+            t.cell("ItemId", rows[i].item_id);
             t.cell("Product", rows[i].product_name);
             t.cell("Department", rows[i].department_name);
             t.cell("Price", rows[i].price);
@@ -77,9 +77,13 @@ var connection = mysql.createConnection({
       else {
         connection.query(query, [HowMany, ItemId], function (err, results) {
           if (err) throw err;
-         
+          console.log();
+          console.log("You spent " + totalPrice + " dollars today, thank you for shopping at Bamazon today");
+          t.rows[ItemId].Quantity = stock;
+          console.log(t.toString());
           return results;
         });
+
           connection.end();
       }
         
