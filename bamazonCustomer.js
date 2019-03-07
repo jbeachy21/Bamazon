@@ -1,8 +1,10 @@
 var inquirer = require('inquirer');
 var mysql = require("mysql");
 var itemQuantities = [];
-var easyTable = require("easy-table");
+var Table = require("easy-table");
 
+
+var t = new Table;
 var connection = mysql.createConnection({
     host: "localhost",
     // Your port; if not 3306
@@ -23,15 +25,23 @@ var connection = mysql.createConnection({
         if(err) throw err;
       
         for (var i = 0; i<rows.length; i++) {
-            console.log("________________________");
-            console.log();
-            console.log("ID: " + rows[i].item_id + " || Product: " + rows[i].product_name + " || Department: " + rows[i].department_name + 
-            " || Price: " + rows[i].price + " || Quantity: " + rows[i].stock_quantity);
-            console.log();
-            itemQuantities[i] = rows[i].stock_quantity;
-            console.log("itemQuantity: " + itemQuantities[i]);
+            // console.log("________________________");
+            // console.log();
+            // console.log("ID: " + rows[i].item_id + " || Product: " + rows[i].product_name + " || Department: " + rows[i].department_name + 
+            // " || Price: " + rows[i].price + " || Quantity: " + rows[i].stock_quantity);
+            // console.log();
+            // itemQuantities[i] = rows[i].stock_quantity;
+            // console.log("itemQuantity: " + itemQuantities[i]);
+            t.cell("Item id", rows[i].item_id);
+            t.cell("Product", rows[i].product_name);
+            t.cell("Department", rows[i].department_name);
+            t.cell("Price", rows[i].price);
+            t.cell("Quantity", rows[i].stock_quantity);
+            t.newRow();
 
         }
+        console.log();
+        console.log(t.toString());
         //console.log(rows);
         start();
       });
@@ -69,20 +79,20 @@ var connection = mysql.createConnection({
       if (HowMany > stock || stock === 0) {
         console.log("Insufficient quantity (you ordered too many or we are currently out of stock).");
         start();
-      }
-    //ADD CASE FOR IF SOMEONE WANTS TO BUY MORE UNITS THAN CURRENT QUANTITY OR IF THERE IS A CURRENT QUANTITY OF 0
+      } ``
 
 
 
       connection.query(query, [HowMany, ItemId], function (err, results) {
         if (err) throw err;
-        console.log(results);
+        
         return results;
       });
 
-
-        connection.end();
         
-}
+        connection.end();
+        console.log(t.toString());
+},
+
 )}
   
