@@ -1,6 +1,7 @@
 var inquirer = require('inquirer');
 var mysql = require("mysql");
 var itemQuantities = [];
+var prices = [];
 var Table = require("easy-table");
 
 
@@ -25,24 +26,17 @@ var connection = mysql.createConnection({
         if(err) throw err;
       
         for (var i = 0; i<rows.length; i++) {
-            // console.log("________________________");
-            // console.log();
-            // console.log("ID: " + rows[i].item_id + " || Product: " + rows[i].product_name + " || Department: " + rows[i].department_name + 
-            // " || Price: " + rows[i].price + " || Quantity: " + rows[i].stock_quantity);
-            // console.log();
-            // itemQuantities[i] = rows[i].stock_quantity;
-            // console.log("itemQuantity: " + itemQuantities[i]);
+            prices[i] = rows[i].price;
+            itemQuantities[i] = rows[i].stock_quantity;
             t.cell("Item id", rows[i].item_id);
             t.cell("Product", rows[i].product_name);
             t.cell("Department", rows[i].department_name);
             t.cell("Price", rows[i].price);
             t.cell("Quantity", rows[i].stock_quantity);
             t.newRow();
-
         }
         console.log();
         console.log(t.toString());
-        //console.log(rows);
         start();
       });
     
@@ -67,31 +61,28 @@ var connection = mysql.createConnection({
       var query = "UPDATE products SET stock_quantity = stock_quantity - ? WHERE item_id =?";
       var ItemId = answers.ItemId
       var HowMany = answers.Units;
-      itemQuantities[ItemId+1] = itemQuantities[ItemId+1] - HowMany; 
-      var stock = itemQuantities[ItemId]
-      console.log("ItemId: " + ItemId);
-      console.log("HowMany: " + HowMany);
-      console.log("stock: " + stock);
-      // select * from products;
-
-      // update products set stock_quantity = stock_quantity - 10 where item_id = 1;
       
-      if (HowMany > stock || stock === 0) {
+      itemQuantities[ItemId] = itemQuantities[ItemId] - HowMany; 
+      var stock = itemQuantities[ItemId];
+      var totalPrice = HowMany * prices[ItemId];
+      console.log("totalPrice: " + totalPrice);
+       console.log("HowMany: " + HowMany);
+       console.log("stock: " + stock);
+       
+      
+      if (stock === 0 || HowMany > stock) {
         console.log("Insufficient quantity (you ordered too many or we are currently out of stock).");
-        start();
-      } ``
-
-
-
-      connection.query(query, [HowMany, ItemId], function (err, results) {
-        if (err) throw err;
-        
-        return results;
-      });
-
-        
         connection.end();
-        console.log(t.toString());
+      } 
+      else {
+        connection.query(query, [HowMany, ItemId], function (err, results) {
+          if (err) throw err;
+         
+          return results;
+        });
+          connection.end();
+      }
+        
 },
 
 )}
